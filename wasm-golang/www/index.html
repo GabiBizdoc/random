@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    .container form {
+        display: grid;
+        justify-content: center;
+        grid-gap: 1rem;
+    }
+</style>
+<body>
+<div class="container">
+    <form id="integers">
+        <label>Add Integers</label>
+        <div>
+            <label>A:
+                <input type="number" name="a">
+            </label>
+        </div>
+        <div>
+            <label>B:
+                <input type="number" name="b">
+            </label>
+        </div>
+        <button>Add</button>
+        <p>
+            <span data-result></span>
+        </p>
+    </form>
+
+    <form id="floats">
+        <label>Add Floats</label>
+        <div>
+            <label>A:
+                <input type="number" step="any" name="a">
+            </label>
+        </div>
+        <div>
+            <label>B:
+                <input type="number" step="any" name="b">
+            </label>
+        </div>
+        <button>Add</button>
+        <p>
+            <span data-result></span>
+        </p>
+    </form>
+</div>
+<script type="module">
+    import './wasm_exec.js'
+
+    const go = new Go()
+    const results = await WebAssembly.instantiateStreaming(fetch("./main.wasm"), go.importObject)
+    go.run(results.instance)
+
+    document.querySelector("#integers").addEventListener("submit", onSubmit(addInt))
+    document.querySelector("#floats").addEventListener("submit", onSubmit(addFloat))
+
+    function onSubmit(addFunction) {
+        return function (e) {
+            e.preventDefault()
+            const form = e.target
+            const readInputValue = name => +form.querySelector(`input[name="${name}"]`).value
+            const start = performance.now()
+            const result = addFunction(readInputValue('a'), readInputValue('b'))
+            const end = performance.now()
+            const msg = `result: ${result}; total: ${(end - start).toFixed(2)} ms`
+            form.querySelector(`span[data-result]`).textContent = msg
+        }
+    }
+</script>
+</body>
+</html>
