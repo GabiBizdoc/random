@@ -51,3 +51,7 @@
    ```shell
    go run ./cmd/server.go www_tinygo
    ```
+   
+## DEMO
+   - [Wasm TinyGO Demo](https://gabibizdoc.github.io/random/wasm-tinygo-demo/)
+   - [Wasm GO Demo](https://gabibizdoc.github.io/random/wasm-go-demo/)
