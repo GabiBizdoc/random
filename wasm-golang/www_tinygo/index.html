@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    .container form {
+        display: grid;
+        justify-content: center;
+        grid-gap: 1rem;
+    }
+</style>
+<body>
+<div class="container">
+    <h1 style="text-align: center">TinyGo</h1>
+    <form id="integers">
+        <label>Add Integers</label>
+        <div>
+            <label>A:
+                <input type="number" name="a">
+            </label>
+        </div>
+        <div>
+            <label>B:
+                <input type="number" name="b">
+            </label>
+        </div>
+        <button>Add</button>
+        <p>
+            <span data-result></span>
+        </p>
+    </form>
+
+    <form id="floats">
+        <label>Add Floats</label>
+        <div>
+            <label>A:
+                <input type="number" step="any" name="a">
+            </label>
+        </div>
+        <div>
+            <label>B:
+                <input type="number" step="any" name="b">
+            </label>
+        </div>
+        <button>Add</button>
+        <p>
+            <span data-result></span>
+        </p>
+    </form>
+</div>
+
+<script type="module">
+
+    import './wasm_exec.js'
+
+    const go = new Go() // Defined in wasm_exec.js
+    const WASM_URL = 'main.wasm'
+
+    async function initWasm() {
+        let obj
+        if ('instantiateStreaming' in WebAssembly) {
+            obj = await WebAssembly.instantiateStreaming(fetch(WASM_URL), go.importObject)
+        } else {
+            const resp = await fetch(WASM_URL)
+            const bytes = await resp.arrayBuffer()
+            obj = await WebAssembly.instantiate(bytes, go.importObject)
+        }
+
+        let wasm = obj.instance
+        go.run(wasm)
+        return wasm
+    }
+
+    const wasm = await initWasm()
+
+    document.querySelector("#integers").addEventListener("submit", onSubmit(wasm.exports.addInt))
+    document.querySelector("#floats").addEventListener("submit", onSubmit(wasm.exports.addFloat))
+
+    function onSubmit(addFunction) {
+        return function (e) {
+            e.preventDefault()
+            const form = e.target
+            const readInputValue = name => +form.querySelector(`input[name="${name}"]`).value
+            const start = performance.now()
+            const result = addFunction(readInputValue('a'), readInputValue('b'))
+            const end = performance.now()
+            const msg = `result: ${result}; total: ${(end - start).toFixed(2)} ms`
+            form.querySelector(`span[data-result]`).textContent = msg
+        }
+    }
+</script>
+</body>
+</html>
