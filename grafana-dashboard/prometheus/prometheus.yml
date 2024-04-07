@@ -1,0 +1,40 @@
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+
+  # scrape_timeout is set to the global default (10s).
+
+scrape_configs:
+  - job_name: 'app1'
+    scrape_interval: 5s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: [ 'golang-monitoring-demo1:7000' ]
+  - job_name: 'app2'
+    scrape_interval: 5s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: [ 'golang-monitoring-demo2:7000' ]
+  - job_name: 'app3'
+    scrape_interval: 5s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: [ 'golang-monitoring-demo3:7000' ]
+  - job_name: 'prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['localhost:9090']
+#  - job_name: 'cadvisor'
+#    scrape_interval: 15s
+#    static_configs:
+#      - targets: [ 'monitoring_cadvisor:8080' ]
+
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+#remote_write:
+#  - url: '<Your Prometheus remote_write endpoint>'
+#    basic_auth:
+#      username: '<Your Grafana Username>'
+#      password: '<Your Grafana API key>'

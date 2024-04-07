@@ -1,0 +1,38 @@
+networks:
+  monitoring:
+    external: true
+
+services:
+  app1:
+    container_name: 'golang-monitoring-demo1'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      APP_NAME: HTTP_SERVER
+    ports:
+      - 7001:7000
+    networks:
+      monitoring:
+  app2:
+    container_name: 'golang-monitoring-demo2'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      APP_NAME: HTTP_SERVER
+    ports:
+      - 7002:7000
+    networks:
+      monitoring:
+  app3:
+    container_name: 'golang-monitoring-demo3'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      APP_NAME: HTTP_SERVER_BTREE
+    ports:
+      - 7003:7000
+    networks:
+      monitoring:
